@@ -2,6 +2,7 @@
 
 namespace Chatify\Http\Controllers\Api;
 
+use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Response;
@@ -276,6 +277,9 @@ class MessagesController extends Controller
     {
         $input = trim(filter_var($request['input']));
         $records = User::where('id','!=',Auth::user()->id)
+                    ->whereHas('teams', function($query) {
+                        $query->where('teams.id', Filament::getTenant()->id);
+                    })
                     ->where('name', 'LIKE', "%{$input}%")
                     ->paginate($request->per_page ?? $this->perPage);
 
